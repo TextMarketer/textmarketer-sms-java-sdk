@@ -68,7 +68,7 @@ public class RestClient {
 	 * @param password 	your API Gateway Password
 	 * @param env		possible values RestClient.ENV_SANDBOX or RestClient.ENV_PRODUCTION
 	 *
-	 *<p><b>Example:</b>
+	 *<p><b>Example:</b></p>
 	 *<blockquote><pre>
 	 *RestClient tmClient = new RestClient("myuser", "mypass", RestClient.ENV_SANDBOX);
 	 *</pre></blockquote>
@@ -88,7 +88,7 @@ public class RestClient {
 	 * @return boolean TRUE if login valid, FALSE if username or password not correct
 	 * @throws RestClientException on error
 	 * 
-	 *<p><b>Example:</b>
+	 *<p><b>Example:</b></p>
 	 *<blockquote><pre>
 	 *RestClient tmClient = new RestClient("myuser", "mypass", RestClient.ENV_SANDBOX);
 	 *try {
@@ -114,7 +114,7 @@ public class RestClient {
 	 * @return number of credits currently available on your account.
 	 * @throws RestClientException on error
      * 
-	 *<p><b>Example:</b>
+	 *<p><b>Example:</b></p>
 	 *<blockquote><pre>
 	 *RestClient tmClient = new RestClient("myuser", "mypass", RestClient.ENV_SANDBOX);
 	 *try {
@@ -160,11 +160,13 @@ public class RestClient {
      * @param email			Optional. Available to txtUs Plus customers only. Specifies the email address for incoming responses. If you specify an email address, you must specify an originator that is a txtUs Plus number that is on your account, or you will get an error response.
      * @param custom		Optional. An alpha-numeric string, 1-20 characters long, which will be used to 'tag' your outgoing message and will appear in delivery reports, thus facilitating filtering of reports.
      * @param schedule		Optional. Date parameter to schedule the message to send at a given time.
+     * @param checkStop		Optional. If set to 'true', prior to sending the number(s) will checked against the STOP group.
      * @return Hash table with keys: message_id, scheduled_id, credits_used and status
      * @throws RestClientException on error
      * 
      * 
 	 *<p><b>Example:</b></p>
+	 *
 	 *<blockquote><pre>
 	 *{@code
 	 *RestClient tmClient = new RestClient("myuser", "mypass", RestClient.ENV_SANDBOX);
@@ -177,7 +179,7 @@ public class RestClient {
 	 *}
 	 *</pre></blockquote>
      */
-    public Hashtable<String, String> sendSMS(String message, String mobile_number, String originator, int validity, String email, String custom, Date schedule)  throws RestClientException {
+    public Hashtable<String, String> sendSMS(String message, String mobile_number, String originator, int validity, String email, String custom, Date schedule, boolean checkStop)  throws RestClientException {
     	if(validity < 1 || validity > 72)
     		validity = 72;
     	if(email == null)
@@ -192,6 +194,8 @@ public class RestClient {
     	extraparams.put("validity", Integer.toString(validity));
     	extraparams.put("email", email);
     	extraparams.put("custom", custom);
+    	extraparams.put("check_stop", Boolean.valueOf(checkStop).toString());
+    	
     	if(schedule != null) {
     		SimpleDateFormat df = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ssz");
     		extraparams.put("schedule", df.format(schedule));
@@ -202,6 +206,82 @@ public class RestClient {
 			throw new RestClientException(e);
 		}
     	return parseResponseXML(xmlResponse, "");
+    }
+    
+    /**
+     * Send a text message to the specified recipient.
+     * 
+     * @param message		The textual content of the message to be sent. Up to 612 characters from the GSM alphabet. The SMS characters we can support is documented at <a href="http://www.textmarketer.co.uk/blog/2009/07/bulk-sms/supported-and-unsupported-characters-in-text-messages-gsm-character-set/">GSM character set</a>. Please ensure that data is encoded in UTF-8.
+     * @param mobile_number	The mobile number of the intended recipient, in international format, e.g. 447777123123. Only one number is allowed. To send a message to multiple recipients, you must call the API for each number.
+     * @param originator	A string (up to 11 alpha-numeric characters) or the international mobile number (up to 16 digits) of the sender, to be displayed to the recipient, e.g. 447777123123 for a UK number.
+     * @return Hash table with keys: message_id, scheduled_id, credits_used and status
+     * @throws RestClientException on error
+     */
+    public Hashtable<String, String> sendSMS(String message, String mobile_number, String originator)  throws RestClientException {
+    	return sendSMS(message, mobile_number, originator, 0, null, null, null, false);
+    }
+    
+    /**
+     * Send a text message to the specified recipient, with a limited validity to be delivered.
+     * 
+     * @param message		The textual content of the message to be sent. Up to 612 characters from the GSM alphabet. The SMS characters we can support is documented at <a href="http://www.textmarketer.co.uk/blog/2009/07/bulk-sms/supported-and-unsupported-characters-in-text-messages-gsm-character-set/">GSM character set</a>. Please ensure that data is encoded in UTF-8.
+     * @param mobile_number	The mobile number of the intended recipient, in international format, e.g. 447777123123. Only one number is allowed. To send a message to multiple recipients, you must call the API for each number.
+     * @param originator	A string (up to 11 alpha-numeric characters) or the international mobile number (up to 16 digits) of the sender, to be displayed to the recipient, e.g. 447777123123 for a UK number.
+     * @param validity		Optional. An integer from 1 to 72, indicating the number of hours during which the message is valid for delivery. Messages which cannot be delivered within the specified time will fail.
+     * @return Hash table with keys: message_id, scheduled_id, credits_used and status
+     * @throws RestClientException on error
+     * 
+     */
+    public Hashtable<String, String> sendSMS(String message, String mobile_number, String originator, int validity)  throws RestClientException {
+    	return sendSMS(message, mobile_number, originator, validity, null, null, null, false);
+    }
+    
+    /**
+     * Send a text message to the specified recipient, with validity and email set to receive replies from.
+     * 
+     * @param message		The textual content of the message to be sent. Up to 612 characters from the GSM alphabet. The SMS characters we can support is documented at <a href="http://www.textmarketer.co.uk/blog/2009/07/bulk-sms/supported-and-unsupported-characters-in-text-messages-gsm-character-set/">GSM character set</a>. Please ensure that data is encoded in UTF-8.
+     * @param mobile_number	The mobile number of the intended recipient, in international format, e.g. 447777123123. Only one number is allowed. To send a message to multiple recipients, you must call the API for each number.
+     * @param originator	A string (up to 11 alpha-numeric characters) or the international mobile number (up to 16 digits) of the sender, to be displayed to the recipient, e.g. 447777123123 for a UK number.
+     * @param validity		An integer from 1 to 72, indicating the number of hours during which the message is valid for delivery. Messages which cannot be delivered within the specified time will fail.
+     * @param email			Optional. Available to txtUs Plus customers only. Specifies the email address for incoming responses. If you specify an email address, you must specify an originator that is a txtUs Plus number that is on your account, or you will get an error response.
+     * @return Hash table with keys: message_id, scheduled_id, credits_used and status
+     * @throws RestClientException on error
+     */
+    public Hashtable<String, String> sendSMS(String message, String mobile_number, String originator, int validity, String email)  throws RestClientException {
+    	return sendSMS(message, mobile_number, originator, validity, email, null, null, false);
+    }
+    
+    /**
+     * Send a text message to the specified recipient, with validity, email and a custom alpha-numeric reference tag.
+     * 
+     * @param message		The textual content of the message to be sent. Up to 612 characters from the GSM alphabet. The SMS characters we can support is documented at <a href="http://www.textmarketer.co.uk/blog/2009/07/bulk-sms/supported-and-unsupported-characters-in-text-messages-gsm-character-set/">GSM character set</a>. Please ensure that data is encoded in UTF-8.
+     * @param mobile_number	The mobile number of the intended recipient, in international format, e.g. 447777123123. Only one number is allowed. To send a message to multiple recipients, you must call the API for each number.
+     * @param originator	A string (up to 11 alpha-numeric characters) or the international mobile number (up to 16 digits) of the sender, to be displayed to the recipient, e.g. 447777123123 for a UK number.
+     * @param validity		An integer from 1 to 72, indicating the number of hours during which the message is valid for delivery. Messages which cannot be delivered within the specified time will fail.
+     * @param email			Optional. Available to txtUs Plus customers only. Specifies the email address for incoming responses. If you specify an email address, you must specify an originator that is a txtUs Plus number that is on your account, or you will get an error response.
+     * @param custom		Optional. An alpha-numeric string, 1-20 characters long, which will be used to 'tag' your outgoing message and will appear in delivery reports, thus facilitating filtering of reports.
+     * @return Hash table with keys: message_id, scheduled_id, credits_used and status
+     * @throws RestClientException on error 
+     */
+    public Hashtable<String, String> sendSMS(String message, String mobile_number, String originator, int validity, String email, String custom)  throws RestClientException {
+    	return sendSMS(message, mobile_number, originator, validity, email, custom, null, false);
+    }
+    
+    /**
+     * Schedule send a text message to the specified recipient.
+     * 
+     * @param message		The textual content of the message to be sent. Up to 612 characters from the GSM alphabet. The SMS characters we can support is documented at <a href="http://www.textmarketer.co.uk/blog/2009/07/bulk-sms/supported-and-unsupported-characters-in-text-messages-gsm-character-set/">GSM character set</a>. Please ensure that data is encoded in UTF-8.
+     * @param mobile_number	The mobile number of the intended recipient, in international format, e.g. 447777123123. Only one number is allowed. To send a message to multiple recipients, you must call the API for each number.
+     * @param originator	A string (up to 11 alpha-numeric characters) or the international mobile number (up to 16 digits) of the sender, to be displayed to the recipient, e.g. 447777123123 for a UK number.
+     * @param validity		An integer from 1 to 72, indicating the number of hours during which the message is valid for delivery. Messages which cannot be delivered within the specified time will fail.
+     * @param email			Optional. Available to txtUs Plus customers only. Specifies the email address for incoming responses. If you specify an email address, you must specify an originator that is a txtUs Plus number that is on your account, or you will get an error response.
+     * @param custom		Optional. An alpha-numeric string, 1-20 characters long, which will be used to 'tag' your outgoing message and will appear in delivery reports, thus facilitating filtering of reports.
+     * @param schedule		Optional. Date parameter to schedule the message to send at a given time.
+     * @return Hash table with keys: message_id, scheduled_id, credits_used and status
+     * @throws RestClientException on error
+     */
+    public Hashtable<String, String> sendSMS(String message, String mobile_number, String originator, int validity, String email, String custom, Date schedule)  throws RestClientException {
+    	return sendSMS(message, mobile_number, originator, validity, email, custom, schedule, false);
     }
     
     /**
