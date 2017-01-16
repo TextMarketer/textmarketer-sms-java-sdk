@@ -51,7 +51,7 @@ public class RestClient {
 	final private static String PROD_URL = "https://api.textmarketer.co.uk/services/rest/";
 	final private static String SAND_URL = "http://sandbox.api.textmarketer.co.uk/services/rest/";
 	final private static String APICLIENT = "tm-java-";
-	final private static String VERSION = "1.4";
+	final private static String VERSION = "1.4.1";
 	
 	private String xmlResponse;
 	private Hashtable<String, String> params;
