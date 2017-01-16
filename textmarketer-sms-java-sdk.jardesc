@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<jardesc>
+    <jar path="textmarketer-sms-java-sdk/textmarketer-sms-java-sdk.jar"/>
+    <options buildIfNeeded="true" compress="true" descriptionLocation="/textmarketer-sms-java-sdk/textmarketer-sms-java-sdk.jardesc" exportErrors="true" exportWarnings="true" includeDirectoryEntries="false" overwrite="false" saveDescription="true" storeRefactorings="false" useSourceFolders="false"/>
+    <storedRefactorings deprecationInfo="true" structuralOnly="false"/>
+    <selectedProjects/>
+    <manifest generateManifest="true" manifestLocation="" manifestVersion="1.0" reuseManifest="false" saveManifest="false" usesManifest="true">
+        <sealing sealJar="false">
+            <packagesToSeal/>
+            <packagesToUnSeal/>
+        </sealing>
+    </manifest>
+    <selectedElements exportClassFiles="true" exportJavaFiles="false" exportOutputFolder="false">
+        <javaElement handleIdentifier="=textmarketer-sms-java-sdk/src&lt;uk.co"/>
+        <javaElement handleIdentifier="=textmarketer-sms-java-sdk/src&lt;uk.co.textmarketer"/>
+        <javaElement handleIdentifier="=textmarketer-sms-java-sdk/src&lt;uk"/>
+        <javaElement handleIdentifier="=textmarketer-sms-java-sdk/src&lt;uk.co.textmarketer.RestAPI"/>
+        <javaElement handleIdentifier="=textmarketer-sms-java-sdk/src&lt;Examples"/>
+        <file path="/textmarketer-sms-java-sdk/README.md"/>
+        <javaElement handleIdentifier="=textmarketer-sms-java-sdk/src&lt;{Example.java"/>
+        <file path="/textmarketer-sms-java-sdk/src/.DS_Store"/>
+    </selectedElements>
+</jardesc>
